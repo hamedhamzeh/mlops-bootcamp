@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+*.pyo
+
+# packaging artifacts
+*.egg-info/
+build/
+dist/
+
+.venv/
+venv/
+
+.ipynb_checkpoints/
+
+.DS_Store
+.vscode/
+
+hw01_airbnd-ops/data/processed/
+hw01_airbnd-ops/reports/
