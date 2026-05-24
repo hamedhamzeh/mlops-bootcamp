@@ -37,6 +37,16 @@ def run():
 
     print("[blue]Writing processed CSV...[/blue]")
 
+    config.output_path.parent.mkdir(
+    parents=True,
+    exist_ok=True
+    )
+
+    config.report_path.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
     summary.to_csv(
         config.output_path,
         index=False
