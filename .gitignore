@@ -15,5 +15,4 @@ venv/
 .DS_Store
 .vscode/
 
-hw01_airbnd-ops/data/processed/
-hw01_airbnd-ops/reports/
+hw01_airbnd-ops/.dvc/cache/
