@@ -1,0 +1,9 @@
+table,column,pii_type,decision,reason
+listing,listing_id,entity identifier,keep as entity key only,needed to define one row per listing; not a model input
+listing,host_id,person/entity identifier,"use for joins only, then drop",links listings to hosts and should not be used as a model feature
+host,host_pseudo_id,pseudonymous identifier,exclude,still identity-linking and not necessary for prediction
+listing,license,legal/sensitive identifier,exclude,may contain sensitive information
+review,review_id,review identifier,exclude raw column,raw identifier is not needed; only aggregated review counts are used
+review,reviewer_id,person identifier,"use only for aggregation, then drop",can be used to count unique reviewers but must not appear in final dataset
+review,reviewer_pseudo_id,pseudonymous person identifier,exclude,identity-linking field and not needed as a feature
+review,comments/raw text,free text,exclude raw text,free-text reviews may contain personal or sensitive information; only comment length aggregates are allowed
