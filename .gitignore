@@ -10,6 +10,7 @@ dist/
 .env
 .venv/
 venv/
+.venv_hw13/
 
 .ipynb_checkpoints/
 
