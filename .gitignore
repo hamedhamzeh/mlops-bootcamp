@@ -17,3 +17,4 @@ venv/
 .vscode/
 
 hw01_airbnd-ops/.dvc/cache/
+hw12_mlflow/outputs
