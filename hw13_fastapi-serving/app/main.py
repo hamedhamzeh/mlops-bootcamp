@@ -21,7 +21,11 @@ model_service = ModelService()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("STARTUP: before model_service.load()", flush=True)
     model_service.load()
+    print("STARTUP: after model_service.load()", flush=True)
+    print("MODEL LOADED:", model_service.state.loaded, flush=True)
+    print("MODEL ERROR:", model_service.state.error, flush=True)
     yield
 
 

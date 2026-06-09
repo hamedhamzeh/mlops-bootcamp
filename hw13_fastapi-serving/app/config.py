@@ -2,6 +2,14 @@ from __future__ import annotations
 
 import os
 from typing import List
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+ENV_PATH = BASE_DIR / ".env"
+
+load_dotenv(dotenv_path=ENV_PATH, override=True)
 
 APP_TITLE = "QBC12 HW03 Listing Availability Prediction API"
 APP_VERSION = "0.1.0"
@@ -12,9 +20,10 @@ MLFLOW_TRACKING_PASSWORD = os.getenv("MLFLOW_TRACKING_PASSWORD", "")
 STUDENT_USERNAME = os.getenv("STUDENT_USERNAME", MLFLOW_TRACKING_USERNAME or "student_unknown")
 MLFLOW_EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT_NAME", f"qbc12_hw02_{STUDENT_USERNAME}")
 MLFLOW_RUN_ID = os.getenv("MLFLOW_RUN_ID", "").strip()
+MLFLOW_MODEL_ARTIFACT_PATH = os.getenv("MLFLOW_MODEL_ARTIFACT_PATH", "model/pipeline.pkl")
 PREDICTION_THRESHOLD = float(os.getenv("PREDICTION_THRESHOLD", "0.5"))
 
-DATASET_VERSION = "v1_audit_cleaned"
+DATASET_VERSION = "v1_student"
 TARGET_NAME = "high_demand_proxy"
 POSITIVE_LABEL = "high_demand_proxy"
 NEGATIVE_LABEL = "not_high_demand_proxy"
