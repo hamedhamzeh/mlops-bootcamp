@@ -1,9 +1,9 @@
 # HW03 Docker Image Size Report
 
 | Repository           | Tag       | Size   |
-|:---------------------|:----------|:-------|
+| :------------------- | :-------- | :----- |
 | qbc12-airbnb-serving | optimized | 1.29GB |
-| qbc12-airbnb-serving | naive     | 3.7GB  |
+| qbc12-airbnb-serving | naive     | 2.72GB |
 
 ## Analysis
 
