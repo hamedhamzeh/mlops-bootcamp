@@ -11,15 +11,25 @@ from typing import List, Sequence
 import numpy as np
 
 
-# TODO: implement embed_texts(predictor, texts) -> np.ndarray
-# This function takes a BundlePredictor instance and a list of strings,
-# and returns a (B, 384) float32 numpy array of L2-normalized embeddings.
-# HINT: call predictor.embed(list(texts)) to get the raw embeddings
-# HINT: verify that arr.shape[1] == 384 (expected embedding dimension)
-# HINT: the bundle's embed() already returns L2-normalized vectors
-# HINT: if texts is empty, return np.zeros((0, 384), dtype=np.float32)
+def embed_texts(predictor, texts) -> np.ndarray:
+    if len(texts) == 0:
+        return np.zeros((0, 384), dtype=np.float32)
+
+    arr = predictor.embed(list(texts))
+
+    arr = np.asarray(arr, dtype=np.float32)
+
+    if arr.shape[1] != 384:
+        raise ValueError(f"Invalid embedding dim: {arr.shape}")
+
+    return arr
 
 
-# TODO: (bonus) implement cosine(a: np.ndarray, b: np.ndarray) -> np.ndarray
-# Return (a.shape[0], b.shape[0]) cosine similarity matrix.
-# HINT: L2-normalize each row of a and b, then compute a_n @ b_n.T
+def cosine(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    if a.size == 0 or b.size == 0:
+        return np.zeros((a.shape[0], b.shape[0]), dtype=np.float32)
+
+    a_norm = a / (np.linalg.norm(a, axis=1, keepdims=True) + 1e-8)
+    b_norm = b / (np.linalg.norm(b, axis=1, keepdims=True) + 1e-8)
+
+    return a_norm @ b_norm.T

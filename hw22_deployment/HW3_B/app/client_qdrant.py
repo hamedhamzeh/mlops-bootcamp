@@ -10,22 +10,89 @@ from qdrant_client.http import models
 from . import config
 
 
-# TODO: create a singleton QdrantClient instance
-# HINT: use a module-level variable _client: Optional[QdrantClient] = None
-# HINT: implement get_client() -> QdrantClient that lazily creates the client
-# HINT: QdrantClient(url=config.QDRANT_URL, api_key=config.QDRANT_API_KEY or None, timeout=10.0)
+_client: Optional[QdrantClient] = None
 
-# TODO: implement ping() -> bool
-# Try to list collections to verify connectivity. Return True if reachable, False otherwise.
-# HINT: call get_client().get_collections()
+def get_client() -> QdrantClient:
+    global _client
 
-# TODO: implement vector_count(collection: str) -> Optional[int]
-# Return the number of vectors in a collection, or None on error.
-# HINT: get_client().get_collection(collection_name=collection).vectors_count
+    if _client is None:
+        _client = QdrantClient(
+            url=config.QDRANT_URL,
+            api_key=config.QDRANT_API_KEY or None,
+            timeout=10.0,
+        )
 
-# TODO: implement search(collection, vector, top_k, lang, primary, exclude_neutral) -> List[models.ScoredPoint]
-# Run an ANN search with optional payload filters.
-# HINT: build a qdrant_client.http.models.Filter with must/must_not conditions
-# HINT: must conditions for lang and primary (if provided)
-# HINT: must_not condition for primary="neutral" if exclude_neutral is True
-# HINT: call get_client().search(collection_name=..., query_vector=..., limit=..., query_filter=..., with_payload=True, with_vectors=False)
+    return _client
+
+
+def ping() -> bool:
+    try:
+        get_client().get_collections()
+        return True
+    except Exception:
+        return False
+
+
+def vector_count(collection: str) -> Optional[int]:
+    try:
+        info = get_client().get_collection(collection_name=collection)
+        return info.vectors_count
+    except Exception:
+        return None
+    
+
+def search(
+    collection: str,
+    vector: List[float],
+    top_k: int,
+    lang: Optional[str],
+    primary: Optional[str],
+    exclude_neutral: bool,
+) -> List[models.ScoredPoint]:
+
+    client = get_client()
+
+    must_conditions = []
+
+    # language filter
+    if lang is not None:
+        must_conditions.append(
+            models.FieldCondition(
+                key="lang",
+                match=models.MatchValue(value=lang),
+            )
+        )
+
+    # primary label filter
+    if primary is not None:
+        must_conditions.append(
+            models.FieldCondition(
+                key="primary",
+                match=models.MatchValue(value=primary),
+            )
+        )
+
+    # exclude neutral
+    must_not_conditions = []
+
+    if exclude_neutral:
+        must_not_conditions.append(
+            models.FieldCondition(
+                key="primary",
+                match=models.MatchValue(value="neutral"),
+            )
+        )
+
+    query_filter = models.Filter(
+        must=must_conditions if must_conditions else None,
+        must_not=must_not_conditions if must_not_conditions else None,
+    )
+
+    return client.search(
+        collection_name=collection,
+        query_vector=vector,
+        limit=top_k,
+        query_filter=query_filter,
+        with_payload=True,
+        with_vectors=False,
+    )

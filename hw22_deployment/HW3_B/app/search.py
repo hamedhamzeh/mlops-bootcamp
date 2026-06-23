@@ -9,17 +9,63 @@ from . import config
 from .schemas import SearchHit
 
 
-# TODO: implement hybrid_search(query_vector, top_k, lang, primary, exclude_neutral) -> tuple[List[SearchHit], float]
-# This function orchestrates a hybrid search:
-#   1. Call client_qdrant.search() to get Qdrant ANN hits
-#   2. Extract IDs from Qdrant results
-#   3. Call client_pg.fetch_corpus_hits() to get the source-of-truth rows from Postgres
-#   4. Zip Qdrant hits with PG rows to build SearchHit objects
-#   5. Return (hits, took_ms) where took_ms is elapsed time in milliseconds
-#
-# HINT: qdr_hits = client_qdrant.search(collection=config.QDRANT_COLLECTION, vector=query_vector, top_k=top_k, lang=lang, primary=primary, exclude_neutral=exclude_neutral)
-# HINT: ids = [str(h.id) for h in qdr_hits]
-# HINT: pg_rows = client_pg.fetch_corpus_hits(ids)
-# HINT: SearchHit(id=str(h.id), score=float(h.score), text=row["text"], primary=row["primary_label"], labels=list(row["labels"]), lang=row["lang"], source=row["source"])
-# HINT: use time.perf_counter() to measure elapsed time
-# HINT: return empty list if no Qdrant hits: [], (time.perf_counter() - t0) * 1000.0
+def hybrid_search(
+    query_vector,
+    top_k,
+    lang,
+    primary,
+    exclude_neutral,
+) -> tuple[List[SearchHit], float]:
+
+    t0 = time.perf_counter()
+
+    # 1. Qdrant ANN search
+    qdr_hits = client_qdrant.search(
+        collection=config.QDRANT_COLLECTION,
+        vector=query_vector,
+        top_k=top_k,
+        lang=lang,
+        primary=primary,
+        exclude_neutral=exclude_neutral,
+    )
+
+    # 2. No results case
+    if not qdr_hits:
+        return [], (time.perf_counter() - t0) * 1000.0
+
+    # 3. Extract IDs from Qdrant
+    ids = [str(h.id) for h in qdr_hits]
+
+    # 4. Fetch ground truth from Postgres
+    pg_rows = client_pg.fetch_corpus_hits(ids)
+
+    # 5. Build lookup map (VERY IMPORTANT for alignment)
+    pg_map = {row["id"]: row for row in pg_rows}
+
+    # 6. Merge results
+    hits: List[SearchHit] = []
+
+    for h in qdr_hits:
+        hid = str(h.id)
+
+        if hid not in pg_map:
+            continue
+
+        row = pg_map[hid]
+
+        hits.append(
+            SearchHit(
+                id=hid,
+                score=float(h.score),
+                text=row["text"],
+                primary=row["primary_label"],
+                labels=list(row["labels"]),
+                lang=row["lang"],
+                source=row["source"],
+            )
+        )
+
+    # 7. return timing
+    took_ms = (time.perf_counter() - t0) * 1000.0
+
+    return hits, took_ms
