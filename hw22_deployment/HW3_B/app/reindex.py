@@ -26,11 +26,17 @@ from pathlib import Path
 
 def main() -> int:
     p = argparse.ArgumentParser(description="HW3_B reindex CLI")
-    p.add_argument("--input", required=True, help="JSON file: list of {text, primary, labels, lang, source}")
+    p.add_argument(
+        "--source",
+        "--input",
+        dest="input",
+        required=True,
+        help="JSON file: list of {text, primary, labels, lang, source}",
+    )
     p.add_argument("--collection", default=os.getenv("QDRANT_COLLECTION", "qbc12_corpus"))
     p.add_argument("--batch-size", type=int, default=64)
+    p.add_argument("--limit", type=int, default=None, help="limit number of rows to process")
     p.add_argument("--dry-run", action="store_true", help="compute but don't upsert")
-    # TODO: add --since TIMESTAMP flag (ISO format). If set, skip rows where
     # row["timestamp"] < TIMESTAMP. Hint: use datetime.fromisoformat().
     args = p.parse_args()
 

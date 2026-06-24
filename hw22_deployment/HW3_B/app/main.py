@@ -95,26 +95,26 @@ def health():
 # Model info
 # ---------------------------------------------------------------------------
 
-@app.post("/embed", response_model=EmbedResponse, tags=["embedding"])
-def embed(req: EmbedRequest):
+@app.get("/model-info", response_model=ModelInfoResponse, tags=["model"])
+def model_info():
 
     if not model_service.state.loaded:
         raise HTTPException(status_code=503, detail="model not loaded")
 
-    if len(req.texts) > config.EMBED_BATCH_HARD_CAP:
-        raise HTTPException(status_code=413, detail="batch too large")
+    vector_count = client_qdrant.vector_count(config.QDRANT_COLLECTION)
 
-    t0 = time.perf_counter()
+    meta = model_service.metadata
 
-    vectors = predictor_mod.embed_texts(
-        model_service.require_predictor(),
-        req.texts,
-    )
-
-    return EmbedResponse(
-        count=len(req.texts),
-        dim=vectors.shape[1],
-        embeddings=vectors.tolist(),
+    return ModelInfoResponse(
+        bundle_version=meta.get("framework_version", "unknown"),
+        model_id=meta.get("model_name", "unknown"),
+        model_revision=meta.get("model_revision", "unknown"),
+        device=config.BUNDLE_DEVICE,
+        max_seq_len=meta.get("max_seq_len", 256),
+        embedding_dim=meta.get("embedding_dim", 384),
+        bundle_dir=str(model_service.state.bundle_dir),
+        qdrant_collection=config.QDRANT_COLLECTION,
+        qdrant_vector_count=vector_count,
     )
 
 # ---------------------------------------------------------------------------

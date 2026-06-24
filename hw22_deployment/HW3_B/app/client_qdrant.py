@@ -36,7 +36,17 @@ def ping() -> bool:
 def vector_count(collection: str) -> Optional[int]:
     try:
         info = get_client().get_collection(collection_name=collection)
-        return info.vectors_count
+
+        count = getattr(info, "vectors_count", None)
+        if count is not None:
+            return count
+
+        count = getattr(info, "points_count", None)
+        if count is not None:
+            return count
+
+        return None
+
     except Exception:
         return None
     
