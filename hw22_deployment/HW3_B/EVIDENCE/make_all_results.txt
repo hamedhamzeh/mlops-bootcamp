@@ -1,0 +1,131 @@
+hamedo@hamedo:/mnt/g/work/MLops/mlops-bootcamp/hw22_deployment/HW3_B$ make all
+bash scripts/01_build_image.sh
+Building qbc12-hw03-b-encoder:dev…
+[+] Building 26.0s (20/20) FINISHED                                                                                                                        docker:default
+ => [internal] load build definition from Dockerfile                                                                                                                 0.0s
+ => => transferring dockerfile: 3.29kB                                                                                                                               0.0s
+ => resolve image config for docker-image://docker.io/docker/dockerfile:1.7                                                                                          2.5s
+ => CACHED docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e                                    0.0s
+ => => resolve docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e                                               0.0s
+ => [internal] load metadata for docker.io/library/python:3.11-slim                                                                                                  2.6s
+ => [internal] load .dockerignore                                                                                                                                    0.0s
+ => => transferring context: 2B                                                                                                                                      0.0s
+ => [internal] load build context                                                                                                                                    1.2s
+ => => transferring context: 91.63MB                                                                                                                                 1.2s
+ => [builder 1/4] FROM docker.io/library/python:3.11-slim@sha256:cdbd05fb6f457ca275ff51ce00d93d865ca0b6a25f5ffb08262d94f6835771e5                                    0.0s
+ => => resolve docker.io/library/python:3.11-slim@sha256:cdbd05fb6f457ca275ff51ce00d93d865ca0b6a25f5ffb08262d94f6835771e5                                            0.0s
+ => CACHED [runtime  2/10] RUN groupadd --gid 1001 qbc12 &&     useradd  --uid 1001 --gid qbc12 --shell /bin/bash --create-home qbc12                                0.0s
+ => CACHED [runtime  3/10] WORKDIR /app                                                                                                                              0.0s
+ => CACHED [builder 2/4] WORKDIR /build                                                                                                                              0.0s
+ => CACHED [builder 3/4] COPY requirements.txt /build/requirements.txt                                                                                               0.0s
+ => CACHED [builder 4/4] RUN pip install --prefix=/install         torch==2.5.1         --index-url https://download.pytorch.org/whl/cpu &&     pip install --prefi  0.0s
+ => CACHED [runtime  4/10] COPY --from=builder /install /usr/local                                                                                                   0.0s
+ => CACHED [runtime  5/10] COPY bundle/requirements.txt /tmp/bundle-requirements.txt                                                                                 0.0s
+ => CACHED [runtime  6/10] RUN pip install --no-cache-dir -r /tmp/bundle-requirements.txt && rm /tmp/bundle-requirements.txt                                         0.0s
+ => [runtime  7/10] COPY app/ /app/app/                                                                                                                              0.2s
+ => [runtime  8/10] RUN chmod +x /app/app/entrypoint.sh &&     chown -R qbc12:qbc12 /app                                                                             0.4s
+ => [runtime  9/10] COPY bundle/ /app/bundle/                                                                                                                        0.3s
+ => [runtime 10/10] RUN chown -R qbc12:qbc12 /app/bundle                                                                                                             0.5s
+ => exporting to image                                                                                                                                              17.2s
+ => => exporting layers                                                                                                                                             14.7s
+ => => exporting manifest sha256:1b1c8a0a89c8fd3ce0489d174869a7b9b9862851a6bc1ab72429499d2a545b52                                                                    0.1s
+ => => exporting config sha256:9a83017932f4d2bf9fcf8436c1488eeef090ff59ab5be7dea6fa792d72866cee                                                                      0.1s
+ => => exporting attestation manifest sha256:ca62b2d30880753286e4be766e87c2f58341c0fe3539e246d35adde9b17d29d0                                                        0.3s
+ => => exporting manifest list sha256:440dde5cc8792e77fab48d14dc8c9244be36967acee3bb496d465a23e4476ac4                                                               0.1s
+ => => naming to docker.io/library/qbc12-hw03-b-encoder:dev                                                                                                          0.0s
+ => => unpacking to docker.io/library/qbc12-hw03-b-encoder:dev                                                                                                       1.6s
+
+Built: qbc12-hw03-b-encoder:dev
+Run:   bash scripts/02_run_local.sh
+bash scripts/02_run_local.sh
+Starting Qdrant + Postgres + API…
+[+] up 3/3
+ ✔ Container qbc12-hw03-qdrant-local   Running                                                                                                                        0.0s ✔ Container qbc12-hw03-postgres-local Running                                                                                                                        0.0s ✔ Container qbc12-hw03-b-api-local    Running                                                                                                                        0.0s
+Waiting for API to become healthy (max 60s)…
+API is healthy.
+
+API logs (last 20 lines):
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:53590 - "GET /health HTTP/1.1" 200 OK
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:38558 - "GET /health HTTP/1.1" 200 OK
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:58114 - "GET /health HTTP/1.1" 200 OK
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:37688 - "GET /health HTTP/1.1" 200 OK
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:59024 - "GET /health HTTP/1.1" 200 OK
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:57140 - "GET /health HTTP/1.1" 200 OK
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:41012 - "GET /health HTTP/1.1" 200 OK
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:56706 - "GET /health HTTP/1.1" 200 OK
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:57984 - "GET /health HTTP/1.1" 200 OK
+qbc12-hw03-b-api-local  | INFO:httpx:HTTP Request: GET http://185.50.38.163:6333/collections "HTTP/1.1 200 OK"
+qbc12-hw03-b-api-local  | INFO:     127.0.0.1:39424 - "GET /health HTTP/1.1" 200 OK
+bash scripts/04_smoke_test.sh
+=== / ===
+{
+    "message": "QBC12 HW3 Encoder API",
+    "docs": "/docs",
+    "health": "/health",
+    "version": "0.1.0"
+}
+
+=== /health ===
+{
+    "status": "ok",
+    "bundle_loaded": true,
+    "bundle_dir": "/app/bundle",
+    "qdrant_reachable": true,
+    "pg_reachable": true,
+    "error": null
+}
+
+=== /model-info ===
+{
+    "bundle_version": "2.4.1+cpu",
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "device": "cpu",
+    "max_seq_len": 256,
+    "embedding_dim": 384,
+    "bundle_dir": "/app/bundle",
+    "qdrant_collection": "qbc12_corpus",
+    "qdrant_vector_count": 30451
+}
+
+=== /embed ===
+{
+    "count": 3,
+    "dim": 384,
+    "embeddings": [
+        [
+            -0.0785861536860466,
+            0.010210052132606506,
+            0.04770497605204582,
+            0.00025735097005963326,
+            -0.00016384544142056257,
+            0.008066773414611816,
+            0.06489700078964233,
+            -0.030600009486079216,
+            0.10069607198238373,
+            -0.02554590255022049,
+            -0.027727864682674408,
+            0.0569695346057415,
+            0.018933139741420746,
+            0.035548534244298935,
+            -0.04392201453447342,
+            0.026047075167298317,
+            0.010435652919113636,
+            0.01360992155969143,
+            -0.12426716834306717,
+            0.057327430695295334,
+            -0.10483527928590775,
+            -0.08793941885232925,
+            0.03775292634963989,
+            0.027159802615642548,
+            0.005167732015252113,
+make: *** [Makefile:38: smoke]
