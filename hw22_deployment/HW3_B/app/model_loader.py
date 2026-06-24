@@ -136,9 +136,10 @@ class ModelService:
                 sys.path.insert(0, str(bundle_dir))
 
             # 5. import predictor dynamically
-            from predict import load_bundle  # type: ignore
+            from predict import load_bundle, embed  # type: ignore
 
             self.model, self.tokenizer = load_bundle(str(model_dir))
+            self.embed_fn = embed
 
             # 6. load metadata
             meta_path = bundle_dir / "metadata.json"
@@ -158,7 +159,7 @@ class ModelService:
         if self.model is None or self.tokenizer is None:
             raise RuntimeError("Model not loaded")
 
-        return self
+        return self.embed_fn
 
 
     def info(self) -> dict:

@@ -15,9 +15,12 @@ def embed_texts(predictor, texts) -> np.ndarray:
     if len(texts) == 0:
         return np.zeros((0, 384), dtype=np.float32)
 
-    arr = predictor.embed(list(texts))
+    arr = predictor(list(texts))
 
     arr = np.asarray(arr, dtype=np.float32)
+
+    if arr.ndim != 2:
+        raise ValueError(f"Invalid embedding shape: {arr.shape}")
 
     if arr.shape[1] != 384:
         raise ValueError(f"Invalid embedding dim: {arr.shape}")
